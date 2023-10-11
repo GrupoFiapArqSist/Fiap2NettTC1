@@ -244,12 +244,14 @@ namespace TicketNow.Infra.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("Email");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(150)")
-                        .HasColumnName("Email");
+                        .HasColumnName("Name");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -258,11 +260,7 @@ namespace TicketNow.Infra.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItem", null, t =>
-                        {
-                            t.Property("Email")
-                                .HasColumnName("Email1");
-                        });
+                    b.ToTable("OrderItem", (string)null);
                 });
 
             modelBuilder.Entity("TicketNow.Domain.Entities.Role", b =>

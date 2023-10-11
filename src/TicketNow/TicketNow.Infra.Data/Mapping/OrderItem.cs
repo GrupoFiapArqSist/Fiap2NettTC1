@@ -18,7 +18,7 @@ namespace TicketNow.Infra.Data.Mapping
                    .HasColumnName("Name")
                    .HasColumnType("varchar(150)");
 
-            builder.Property(prop => prop.Name)
+            builder.Property(prop => prop.Email)
                    .HasConversion(prop => prop.ToString(), prop => prop)
                    .IsRequired()                   
                    .HasColumnName("Email")
