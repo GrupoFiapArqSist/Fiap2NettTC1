@@ -7,5 +7,7 @@ namespace TicketNow.Domain.Interfaces.Services
     {
         Task<DefaultServiceResponseDto> RegisterAsync(RegisterDto registerDto);
         Task<LoginResponseDto> LoginAsync(LoginDto loginDto);        
+        Task<DefaultServiceResponseDto> RevokeAsync(string userName);        
+        Task<LoginResponseDto> RefreshTokenAsync(string accessToken, string refreshToken, string userName);        
     }
 }

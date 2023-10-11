@@ -13,7 +13,7 @@ namespace TicketNow.Domain.Extensions
 
             return Convert.ToInt32(claims.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(x => x.Value).FirstOrDefault());
         }
-
+     
         public static string GetAccessToken(this Controller controller)
         {
             var token = controller.HttpContext.GetTokenAsync("access_token").Result;

@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using TicketNow.Domain.Dtos.Auth;
 using TicketNow.Domain.Dtos.Default;
+using TicketNow.Domain.Entities;
+using TicketNow.Domain.Extensions;
 using TicketNow.Domain.Interfaces.Services;
+using TicketNow.Domain.Utilities;
 
 namespace TicketNow.Api.Controllers
 {
@@ -40,6 +44,35 @@ namespace TicketNow.Api.Controllers
         {
             var login = await _authService.LoginAsync(loginDto);
             return Ok(login);
-        }        
+        }
+
+        [HttpPost]
+        [Route("refresh-token")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Refresh user token")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            if (refreshTokenDto is null)
+                return BadRequest("Parametros invalidos!");
+
+            var refresh = await _authService.RefreshTokenAsync(this.GetAccessToken(), refreshTokenDto.RefreshToken, User.Identity.Name);
+            return Ok(refresh);
+        }
+
+        [HttpPost]
+        [Route("revoke/{username}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [SwaggerOperation(Summary = "Revoke user token")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Revoke(string username)
+        {
+            var revoke = await _authService.RevokeAsync(username);
+            return Ok(revoke);
+        }
     }
 }

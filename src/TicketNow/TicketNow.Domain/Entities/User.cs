@@ -13,6 +13,8 @@ namespace TicketNow.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool Active { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
         public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }
