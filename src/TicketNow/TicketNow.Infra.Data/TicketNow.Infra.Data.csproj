@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TicketNow.Domain\TicketNow.Domain.csproj" />
+    <ProjectReference Include="..\TicketNow.Service\TicketNow.Service.csproj" />
   </ItemGroup>
 
 </Project>

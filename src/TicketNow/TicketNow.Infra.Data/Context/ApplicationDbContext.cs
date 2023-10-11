@@ -14,7 +14,8 @@ namespace TicketNow.Infra.Data.Context
         public DbSet<Role> Role { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderItem> OrderItem { get; set; }
-        public DbSet<Event> Event { get; set; }        
+        public DbSet<Event> Event { get; set; }
+        public DbSet<SeedHistory> SeedHistory { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
