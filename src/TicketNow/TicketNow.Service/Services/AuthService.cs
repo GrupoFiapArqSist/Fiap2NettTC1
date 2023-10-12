@@ -13,6 +13,7 @@ using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Entities;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Domain.Utilities;
+using TicketNow.Infra.CrossCutting.Notifications;
 using TicketNow.Service.Validators.Auth;
 
 namespace TicketNow.Service.Services
@@ -22,26 +23,29 @@ namespace TicketNow.Service.Services
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly NotificationContext _notificationContext;
 
         public AuthService(UserManager<User> userManager,
             IConfiguration configuration,
-            IMapper mapper)
+            IMapper mapper,
+            NotificationContext notificationContext)
         {
             _userManager = userManager;
             _configuration = configuration;
             _mapper = mapper;
+            _notificationContext = notificationContext;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginDto loginDto)
         {
             var validationResult = Validate(loginDto, Activator.CreateInstance<LoginValidator>());
-            if (!validationResult.IsValid) { throw new ValidationException(validationResult.Errors); } //todo: add notification
+            if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(LoginResponseDto); }
 
             var user = await _userManager.FindByNameAsync(loginDto.Username);
-            if (user is null || !user.Active) { throw new ValidationException("Credenciais invalidas!"); } //todo: add notification
+            if (user is null || !user.Active) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
 
             var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-            if (!isPasswordCorrect) { throw new ValidationException("Credenciais invalidas!"); } //todo: add notification
+            if (!isPasswordCorrect) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
 
             var authClaims = await GetAuthClaims(user);
             var tokenObject = GenerateNewJsonWebToken(authClaims);
@@ -65,10 +69,10 @@ namespace TicketNow.Service.Services
         public async Task<DefaultServiceResponseDto> RegisterAsync(RegisterDto registerDto)
         {
             var validationResult = Validate(registerDto, Activator.CreateInstance<RegisterValidator>());
-            if (!validationResult.IsValid) { throw new ValidationException(validationResult.Errors); } //todo: add notification
+            if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(DefaultServiceResponseDto); }
 
             var existsUser = await _userManager.FindByNameAsync(registerDto.Username);
-            if (existsUser is not null) { throw new ValidationException("Usuario já cadastrado"); } //todo: add notification
+            if (existsUser is not null) { _notificationContext.AddNotification(StaticNotifications.UserAlreadyExists); return default(DefaultServiceResponseDto); } 
 
             var newUser = _mapper.Map<User>(registerDto);
 
@@ -78,21 +82,25 @@ namespace TicketNow.Service.Services
             var createUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 
             if (!createUserResult.Succeeded)
-                throw new Exception(string.Join(" ", createUserResult.Errors.Select(t => t.Code + " - " + t.Description)));  //todo: add notification                          
+            {
+                var errors = createUserResult.Errors.Select(t => new Notification(t.Code, t.Description));
+                _notificationContext.AddNotifications(errors);
+                return default(DefaultServiceResponseDto);
+            }
 
             await _userManager.AddToRoleAsync(newUser, StaticUserRoles.CUSTOMER);
 
             return new DefaultServiceResponseDto
             {
                 Success = true,
-                Message = "Usuario criado com sucesso!" //todo: melhorar isso
+                Message = StaticNotifications.UserCreated.Message
             };
         }
 
         public async Task<DefaultServiceResponseDto> RevokeAsync(string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
-            if (user == null) { throw new ValidationException("Usuario não encontrado!"); } //todo: add notification
+            if (user == null) { _notificationContext.AddNotification(StaticNotifications.UserNotFound); return default(DefaultServiceResponseDto); }
 
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
@@ -100,21 +108,28 @@ namespace TicketNow.Service.Services
             return new DefaultServiceResponseDto
             {
                 Success = true,
-                Message = "Token revogado com sucesso!" //todo: melhorar isso
+                Message = StaticNotifications.RevokeToken.Message
             };
         }
 
         public async Task<LoginResponseDto> RefreshTokenAsync(string accessToken, string refreshToken, string userName)
         {
-            if (string.IsNullOrWhiteSpace(accessToken) || string.IsNullOrEmpty(refreshToken))
-                throw new ValidationException("Token invalido!"); //add notification            
+            if (string.IsNullOrWhiteSpace(accessToken) ||
+                string.IsNullOrEmpty(refreshToken))
+            {
+                _notificationContext.AddNotification(StaticNotifications.InvalidToken); 
+                return default(LoginResponseDto);
+            }
             
             var user = await _userManager.FindByNameAsync(userName);
 
             if (user is null ||
                 user.RefreshToken != refreshToken ||
                 user.RefreshTokenExpiryTime <= DateTime.Now)
-                throw new ValidationException("Token invalido!"); //add notification            
+            {
+                _notificationContext.AddNotification(StaticNotifications.InvalidToken);
+                return default(LoginResponseDto);
+            }
 
             var authClaims = await GetAuthClaims(user);
             var tokenObject = GenerateNewJsonWebToken(authClaims);

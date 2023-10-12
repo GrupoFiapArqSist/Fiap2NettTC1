@@ -50,7 +50,7 @@ namespace TicketNow.Api.Controllers
         [Route("refresh-token")]
         [Authorize]
         [SwaggerOperation(Summary = "Refresh user token")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(LoginResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
