@@ -6,9 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using TicketNow.Api.Filters;
 using TicketNow.Api.Mapper;
 using TicketNow.Domain.Entities;
 using TicketNow.Domain.Interfaces.Services;
+using TicketNow.Infra.CrossCutting.Notifications;
 using TicketNow.Infra.Data.Context;
 using TicketNow.Service.Services;
 
@@ -65,6 +67,7 @@ services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 #endregion
 
 #region [DI]
+services.AddScoped<NotificationContext>();
 services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
 #endregion
@@ -105,12 +108,14 @@ services.AddSwaggerGen(c =>
 });
 #endregion
 
-services.AddControllers().AddJsonOptions(options =>
+services.AddControllers(options =>
+{
+    options.Filters.Add<NotificationFilter>();
+}).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
@@ -121,7 +126,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider
         .GetRequiredService<ApplicationDbContext>();
-    
+
     dbContext.Database.Migrate();
     dbContext.EnsureSeedData(scope.ServiceProvider);
 }
