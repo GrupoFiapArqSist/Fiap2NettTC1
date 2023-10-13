@@ -59,13 +59,20 @@ namespace TicketNow.Infra.Data.Mapping
 
             builder.Property(p => p.TicketPrice)
                    .IsRequired()
-                   .HasColumnType("decimal(18, 2)"); 
+                   .HasColumnType("decimal(18, 2)");
+
+            builder.Property(prop => prop.Active)
+              .HasConversion(prop => Convert.ToBoolean(prop), prop => prop)
+              .IsRequired()
+              .HasColumnName("Active")
+              .HasColumnType("bit")
+              .HasDefaultValue(false);
             #endregion
 
             #region Maps
             builder.HasOne(e => e.Promoter)
                 .WithMany(e => e.Events)
-                .HasForeignKey(e => e.PrometerId)
+                .HasForeignKey(e => e.PromoterId)
                 .HasPrincipalKey(e => e.Id);
 
             builder.HasMany(e => e.Orders)
