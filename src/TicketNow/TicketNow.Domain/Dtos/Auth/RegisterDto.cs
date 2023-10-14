@@ -10,6 +10,6 @@ namespace TicketNow.Domain.Dtos.Auth
         public string Email { get; set; }
         public string Password { get; set; }
         public string Document { get; set; }
-        public DocumentType DocumentType { get; set; }
+        public DocumentTypeEnum DocumentType { get; set; }
     }
 }

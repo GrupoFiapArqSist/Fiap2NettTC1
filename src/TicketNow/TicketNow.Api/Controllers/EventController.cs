@@ -26,7 +26,7 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = $"{StaticUserRoles.PROMOTER},{StaticUserRoles.ADMIN}")]
+        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Add event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
@@ -34,12 +34,12 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> Add([FromBody] AddEventDto addEventDto)
         {
-            var addResult = await _eventService.AddEventAsync(addEventDto);
+            var addResult = await _eventService.AddEventAsync(addEventDto, this.GetUserIdLogged());
             return Ok(addResult);
         }
 
         [HttpPut]
-        [Authorize(Roles = $"{StaticUserRoles.PROMOTER},{StaticUserRoles.ADMIN}")]
+        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Update event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
@@ -47,7 +47,7 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> Put([FromBody] UpdateEventDto updateEventDto)
         {
-            var updateResult = await _eventService.UpdateEventAsync(updateEventDto);
+            var updateResult = await _eventService.UpdateEventAsync(updateEventDto, this.GetUserIdLogged());
             return Ok(updateResult);
         }
 
@@ -74,14 +74,30 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public IActionResult GetAll([FromQuery] EventFilter filter)
         {
-            var events = _eventService.GetAllEvents(filter);
+            var events = _eventService.GetAllEvents(filter, true);
             if (events is null)
                 return NotFound();
 
             return Ok(events);
         }
 
-        [HttpGet("ByPromoter")]
+        [HttpGet("GetPendingEvents")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [SwaggerOperation(Summary = "Get all events pending")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ICollection<EventDto>))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public IActionResult GetAllPending([FromQuery] EventFilter filter)
+        {
+            var events = _eventService.GetAllEvents(filter, false);
+            if (events is null)
+                return NotFound();
+
+            return Ok(events);
+        }
+
+        [HttpGet("GetByPromoter")]
         [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Get all events by promoter")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ICollection<EventDto>))]
@@ -99,7 +115,7 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpPut("DisableById")]
-        [Authorize(Roles = $"{StaticUserRoles.PROMOTER},{StaticUserRoles.ADMIN}")]
+        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Disable event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
@@ -107,12 +123,12 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> DisableEvent([FromQuery] int eventId)
         {
-            var disableResult = await _eventService.SetState(eventId, false);
+            var disableResult = await _eventService.SetState(eventId, false, this.GetUserIdLogged());
             return Ok(disableResult);
         }
 
         [HttpPut("EnableById")]
-        [Authorize(Roles = $"{StaticUserRoles.PROMOTER},{StaticUserRoles.ADMIN}")]
+        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Enable event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
@@ -120,12 +136,12 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> EnableEvent([FromQuery] int eventId)
         {
-            var enableResult = await _eventService.SetState(eventId, true);
+            var enableResult = await _eventService.SetState(eventId, true, this.GetUserIdLogged());
             return Ok(enableResult);
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = $"{StaticUserRoles.PROMOTER},{StaticUserRoles.ADMIN}")]
+        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Delete event by id")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
@@ -133,7 +149,7 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
         public IActionResult DeleteEvent(int id)
         {
-            var deleteResult = _eventService.DeleteEvent(id);
+            var deleteResult = _eventService.DeleteEvent(id, this.GetUserIdLogged());
             return Ok(deleteResult);
         }
     }

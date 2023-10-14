@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TicketNow.Domain.Entities;
+﻿using TicketNow.Domain.Entities;
 
 namespace TicketNow.Domain.Interfaces.Repositories
 {
@@ -11,5 +6,6 @@ namespace TicketNow.Domain.Interfaces.Repositories
     {
         Task<Event> ExistsByName(string name);
         Task<Event> SelectByIds(int idEvent, int promoterId);
+        Task<bool> ExistsByEventIdAndPromoterId(int idEvent, int promoterId);
     }
 }

@@ -73,7 +73,7 @@ services.AddScoped<NotificationContext>();
 services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<IEventRepository, EventRepository>();
+services.AddScoped<IEventRepository, EventRepository>();
 services.AddScoped<IEventService, EventService>();
 #endregion
 

@@ -1,8 +1,10 @@
-﻿namespace TicketNow.Domain.Dtos.Event
+﻿using TicketNow.Domain.Enums;
+
+namespace TicketNow.Domain.Dtos.Event
 {
     public class AddEventDto
     {
-        public int CategoryId { get; set; }
+        public CategoryEnum Category { get; set; }
         public int PromoterId { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }

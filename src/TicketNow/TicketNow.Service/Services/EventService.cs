@@ -25,8 +25,9 @@ namespace TicketNow.Service.Services
             _notificationContext = notificationContext;
         }
 
-        public async Task<DefaultServiceResponseDto> AddEventAsync(AddEventDto addEventDto)
+        public async Task<DefaultServiceResponseDto> AddEventAsync(AddEventDto addEventDto, int promoterId)
         {
+            addEventDto.PromoterId = promoterId;
             var validationResult = Validate(addEventDto, Activator.CreateInstance<AddEventValidator>());
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(DefaultServiceResponseDto); }
 
@@ -36,7 +37,7 @@ namespace TicketNow.Service.Services
             {
                 _notificationContext.AddNotification(StaticNotifications.EventAlreadyExists); return default(DefaultServiceResponseDto);
             }
-
+            
             entity.CreatedAt = DateTime.Now;
             entity.Active = true;
             entity.TicketAvailable = addEventDto.TicketAmount;
@@ -50,27 +51,17 @@ namespace TicketNow.Service.Services
             };
         }
 
-        public async Task<DefaultServiceResponseDto> UpdateEventAsync(UpdateEventDto updateEventDto)
+        public async Task<DefaultServiceResponseDto> UpdateEventAsync(UpdateEventDto updateEventDto, int promoterId)
         {
+            updateEventDto.PromoterId = promoterId;
             var validationResult = Validate(updateEventDto, Activator.CreateInstance<UpdateEventValidator>());
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(DefaultServiceResponseDto); };
+            
+            if (!await _eventRepository.ExistsByEventIdAndPromoterId(updateEventDto.Id, promoterId))
+            { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };
 
-            var eventResult = await _eventRepository.SelectByIds(updateEventDto.Id, updateEventDto.PromoterId);
-            if (eventResult is null) { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };
-
-            eventResult.CategoryId = updateEventDto.CategoryId;
-            eventResult.Name = updateEventDto.Name;
-            eventResult.Address = updateEventDto.Address;
-            eventResult.City = updateEventDto.City;
-            eventResult.UF = updateEventDto.UF;
-            eventResult.Description = updateEventDto.Description;
-            eventResult.EventTime = updateEventDto.EventTime;
-            eventResult.EventDate = updateEventDto.EventDate;
-            eventResult.TicketPrice = updateEventDto.TicketPrice;
-            eventResult.TicketAmount = updateEventDto.TicketAmount;
-            eventResult.TicketAvailable = updateEventDto.TicketAvailable;
-
-            _eventRepository.Update(eventResult);
+            var entity = _mapper.Map<Event>(updateEventDto);
+            _eventRepository.Update(entity);
             await _eventRepository.SaveChangesAsync();
 
             return new DefaultServiceResponseDto
@@ -87,14 +78,15 @@ namespace TicketNow.Service.Services
             return _mapper.Map<EventDto>(eventDescription);
         }
 
-        public ICollection<EventDto> GetAllEvents(EventFilter filter)
+        public ICollection<EventDto> GetAllEvents(EventFilter filter, bool approved)
         {
             var events = _eventRepository
                .Select()
                .AsQueryable()
                .OrderByDescending(p => p.CreatedAt)
-               .ApplyFilter(filter);
-
+               .ApplyFilter(filter)
+               .Where(p => p.Approved == approved);
+                
             if (filter.Name is not null)
                 events = events.Where(t => t.Name == filter.Name);
 
@@ -122,9 +114,9 @@ namespace TicketNow.Service.Services
             return _mapper.Map<List<EventDto>>(events);
         }
 
-        public async Task<DefaultServiceResponseDto> SetState(int eventId, bool active)
+        public async Task<DefaultServiceResponseDto> SetState(int eventId, bool active, int promoterId)
         {
-            var eventResult = _eventRepository.Select(eventId);
+            var eventResult = await _eventRepository.SelectByIds(eventId, promoterId);
 
             if (eventResult is null) { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };
 
@@ -153,15 +145,16 @@ namespace TicketNow.Service.Services
             };
         }
 
-        public DefaultServiceResponseDto DeleteEvent(int eventId)
+        public async Task<DefaultServiceResponseDto> DeleteEvent(int eventId, int promoterId)
         {
-            var eventResult = _eventRepository.Select(eventId);
+            var eventResult = await _eventRepository.SelectByIds(eventId, promoterId);
 
             //add validação para order vinculada ao eventId
 
             if (eventResult is null) { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };
 
             _eventRepository.Delete(eventResult.Id);
+            await _eventRepository.SaveChangesAsync();
 
             return new DefaultServiceResponseDto
             {

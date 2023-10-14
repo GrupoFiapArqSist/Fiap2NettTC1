@@ -18,6 +18,7 @@ namespace TicketNow.Api.Mapper
                 #region Event
                 config.CreateMap<EventDto, Event>().ReverseMap();
                 config.CreateMap<AddEventDto, Event>().ReverseMap();
+                config.CreateMap<UpdateEventDto, Event>().ReverseMap();
                 #endregion
             });
             return mappingConfig;
