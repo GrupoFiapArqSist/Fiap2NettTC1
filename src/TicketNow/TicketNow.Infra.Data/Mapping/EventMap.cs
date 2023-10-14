@@ -54,18 +54,32 @@ namespace TicketNow.Infra.Data.Mapping
                    .HasMaxLength(50)
                    .HasConversion(
                        v => v.ToString(),
-                       v => (Category)Enum.Parse(typeof(Category), v))
+                       v => (CategoryEnum)Enum.Parse(typeof(CategoryEnum), v))
                        .IsUnicode(false);
 
             builder.Property(p => p.TicketPrice)
                    .IsRequired()
-                   .HasColumnType("decimal(18, 2)"); 
+                   .HasColumnType("decimal(18, 2)");
+
+            builder.Property(prop => prop.Active)
+                   .HasConversion(prop => Convert.ToBoolean(prop), prop => prop)
+                   .IsRequired()
+                   .HasColumnName("Active")
+                   .HasColumnType("bit")
+                   .HasDefaultValue(false);
+
+            builder.Property(prop => prop.Approved)
+                   .HasConversion(prop => Convert.ToBoolean(prop), prop => prop)
+                   .IsRequired()
+                   .HasColumnName("Approved")
+                   .HasColumnType("bit")
+                   .HasDefaultValue(false);
             #endregion
 
             #region Maps
             builder.HasOne(e => e.Promoter)
                 .WithMany(e => e.Events)
-                .HasForeignKey(e => e.PrometerId)
+                .HasForeignKey(e => e.PromoterId)
                 .HasPrincipalKey(e => e.Id);
 
             builder.HasMany(e => e.Orders)

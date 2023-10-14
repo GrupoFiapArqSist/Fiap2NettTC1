@@ -7,7 +7,7 @@ namespace TicketNow.Domain.Entities
     {
         public int UserId { get; set; }
         public int EventId { get; set; }
-        public OrderStatus Status { get; set; }
+        public OrderStatusEnum Status { get; set; }
         public long Tickets { get; set; }        
         public decimal Price { get; set; }
         public virtual User User { get; set; }

@@ -9,7 +9,7 @@ namespace TicketNow.Domain.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }    
         public string Document { get; set; }
-        public DocumentType DocumentType { get; set; }
+        public DocumentTypeEnum DocumentType { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool Active { get; set; }

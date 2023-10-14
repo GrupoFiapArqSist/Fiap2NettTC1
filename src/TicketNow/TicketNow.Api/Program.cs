@@ -9,9 +9,11 @@ using System.Text.Json.Serialization;
 using TicketNow.Api.Filters;
 using TicketNow.Api.Mapper;
 using TicketNow.Domain.Entities;
+using TicketNow.Domain.Interfaces.Repositories;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Infra.CrossCutting.Notifications;
 using TicketNow.Infra.Data.Context;
+using TicketNow.Infra.Data.Repositories;
 using TicketNow.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,6 +72,9 @@ services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddScoped<NotificationContext>();
 services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
+
+services.AddScoped<IEventRepository, EventRepository>();
+services.AddScoped<IEventService, EventService>();
 #endregion
 
 #region [Swagger]            

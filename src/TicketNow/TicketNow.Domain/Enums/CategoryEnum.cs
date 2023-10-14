@@ -2,9 +2,9 @@
 
 namespace TicketNow.Domain.Enums
 {
-    public enum Category
+    public enum CategoryEnum
     {
         [Description("Festa")]
-        Party
+        Party = 1
     }
 }
