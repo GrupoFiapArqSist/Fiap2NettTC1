@@ -68,7 +68,7 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpPost("UploadPhoto")]
-        //[Authorize(Roles = StaticUserRoles.CUSTOMER)]
+        [Authorize(Roles = StaticUserRoles.CUSTOMER)]
         [SwaggerOperation(Summary = "Upload Photo")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
