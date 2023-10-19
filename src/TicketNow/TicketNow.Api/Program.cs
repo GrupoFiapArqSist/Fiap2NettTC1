@@ -72,6 +72,9 @@ services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddScoped<NotificationContext>();
 services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+services.AddScoped<IOrderService, OrderService>();
 
 services.AddScoped<IEventRepository, EventRepository>();
 services.AddScoped<IEventService, EventService>();
