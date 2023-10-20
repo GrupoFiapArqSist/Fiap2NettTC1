@@ -126,13 +126,21 @@ namespace TicketNow.Service.Services
             var blobClient = new AzureBlobClient(connectionString);
 
             var containerName = _configuration["Azure:BlobStorage:ContainerName"];
+
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
             var stream = file.OpenReadStream();
-            await blobClient.Upload(stream, id.ToString(), containerName);
+
+            await blobClient.Upload(stream, fileName, containerName);
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.PhotoUrl = fileName;
+            await _userManager.UpdateAsync(user);
 
             return new DefaultServiceResponseDto
             {
                 Success = true,
-                Message = StaticNotifications.PasswordChanged.Message
+                Message = StaticNotifications.PhotoUploaded.Message
             };
         }
     }

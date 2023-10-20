@@ -65,7 +65,7 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpPut("Password")]
-        [Authorize(Roles = $"{StaticUserRoles.ADMIN},{StaticUserRoles.CUSTOMER},{StaticUserRoles.PROMOTER}")]
+        [Authorize]
         [SwaggerOperation(Summary = "Change password")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
