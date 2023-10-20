@@ -2,15 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using TicketNow.Domain.Dtos.Auth;
 using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Dtos.Event;
+using TicketNow.Domain.Extensions;
 using TicketNow.Domain.Filters;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Domain.Utilities;
 using TicketNow.Infra.CrossCutting.Notifications;
-using TicketNow.Domain.Extensions;
-using TicketNow.Service.Services;
 
 namespace TicketNow.Api.Controllers
 {
