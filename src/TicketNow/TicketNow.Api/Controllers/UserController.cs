@@ -5,6 +5,7 @@ using System.Net;
 using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Dtos.User;
 using TicketNow.Domain.Extensions;
+using TicketNow.Domain.Filters;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Domain.Utilities;
 
@@ -22,16 +23,21 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [SwaggerOperation(Summary = "Get all users")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IList<UserResponseDto>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] UserFilter filter)
         {
-            var users = _userService.GetAll();
+            var users = _userService.GetAll(filter);
+            if (users is null)
+                return NotFound();
+
             return Ok(users);
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [SwaggerOperation(Summary = "Get user by id")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(UserResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.NoContent)]
@@ -40,6 +46,9 @@ namespace TicketNow.Api.Controllers
         public IActionResult GetById(int id)
         {
             var user = _userService.GetById(id);
+            if (user is null)
+                return NotFound();
+
             return Ok(user);
         }
 
@@ -49,19 +58,19 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetById([FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> Update([FromBody] UpdateUserDto updateUserDto)
         {
             var response = await _userService.Update(updateUserDto, this.GetUserIdLogged());
             return Ok(response);
         }
 
-        [HttpPost("ChangePassword")]
-        [Authorize(Roles = StaticUserRoles.CUSTOMER)]
+        [HttpPut("Password")]
+        [Authorize(Roles = $"{StaticUserRoles.ADMIN},{StaticUserRoles.CUSTOMER},{StaticUserRoles.PROMOTER}")]
         [SwaggerOperation(Summary = "Change password")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> ChangePassword([FromBody] UpdateUserPasswordDto updateUserPasswordDto)
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdateUserPasswordDto updateUserPasswordDto)
         {
             var response = await _userService.UpdatePassword(updateUserPasswordDto, this.GetUserIdLogged());
             return Ok(response);

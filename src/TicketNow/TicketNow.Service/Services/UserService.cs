@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Dtos.User;
 using TicketNow.Domain.Entities;
+using TicketNow.Domain.Extensions;
+using TicketNow.Domain.Filters;
 using TicketNow.Domain.Interfaces.Repositories;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Infra.CrossCutting.Azure;
@@ -35,10 +37,28 @@ namespace TicketNow.Service.Services
             _notificationContext = notificationContext;
         }
 
-        public IList<UserResponseDto> GetAll()
+        public ICollection<UserResponseDto> GetAll(UserFilter filter)
         {
-            var users = _userRepository.Select();
-            var response = _mapper.Map<IList<UserResponseDto>>(users);
+            var users = _userRepository
+                .Select()
+                .AsQueryable()
+                .OrderByDescending(u => u.CreatedAt)
+                .ApplyFilter(filter);
+
+            if (filter.FirstName is not null)
+                users = users.Where(u => u.FirstName == filter.FirstName);
+
+            if (filter.LastName is not null)
+                users = users.Where(u => u.LastName == filter.LastName);
+
+            if (filter.Document is not null)
+                users = users.Where(u => u.Document == filter.Document);
+
+            if (filter.Active is not null)
+                users = users.Where(u => u.Active == filter.Active);
+
+            var response = _mapper.Map<List<UserResponseDto>>(users);
+
             return response;
         }
 

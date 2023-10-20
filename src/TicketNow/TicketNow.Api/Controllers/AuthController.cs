@@ -4,7 +4,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using TicketNow.Domain.Dtos.Auth;
 using TicketNow.Domain.Dtos.Default;
-using TicketNow.Domain.Entities;
 using TicketNow.Domain.Extensions;
 using TicketNow.Domain.Interfaces.Services;
 using TicketNow.Domain.Utilities;
