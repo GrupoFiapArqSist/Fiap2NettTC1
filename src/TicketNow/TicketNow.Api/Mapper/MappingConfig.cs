@@ -20,8 +20,10 @@ namespace TicketNow.Api.Mapper
 
                 config.CreateMap<OrderDto, Order>().ReverseMap();
                 config.CreateMap<AddOrderDto, OrderDto>().ReverseMap();
-                #endregion
+                config.CreateMap<OrderItemDto, OrderItem>().ReverseMap();
+                config.CreateMap<AddOrderItemDto, OrderItem>().ReverseMap();
 
+                #endregion
 
                 #region Event
                 config.CreateMap<EventDto, Event>().ReverseMap();

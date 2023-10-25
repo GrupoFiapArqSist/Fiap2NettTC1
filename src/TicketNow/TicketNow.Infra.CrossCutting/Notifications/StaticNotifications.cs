@@ -27,8 +27,9 @@
         public static Notification OrderSucessWaitingPayment = new("OrderSucessWaitingPayment", "Pedido efetuado, aguardando pagamento.");
         public static Notification OrderSucessButPaymentUnauthorized = new("OrderSucessButPaymentUnauthorized", "Pagamento não autorizado.");
         public static Notification PaymentsNotificationProcessSucess = new("PaymentsNotificationProcessSucess", "Notificação de pagamentos processada com sucesso!");
-        public static Notification CancelOrderByUserEventNotFound = new("CancelOrderByUserEventNotFound", "Evento não encontrado.");
+        public static Notification CancelOrderByUserOrderNotFound = new("CancelOrderByUserEventNotFound", "Pedido não encontrado.");
         public static Notification CancelOrderByUserEventAlreadyCanceled = new("CancelOrderByUserEventAlreadyCanceled", "Evento já cancelado.");
+        public static Notification CancelOrderByUserOrderAlreadyCanceled = new("CancelOrderByUserOrderAlreadyCanceled", "Pedido já cancelado.");
         public static Notification OrderCanceledSucess = new("OrderCanceledSucess", "Pedido cancelado com sucesso.");
         #endregion
     }

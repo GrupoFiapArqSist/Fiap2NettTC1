@@ -7,12 +7,14 @@ using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Dtos.MockPayment;
 using TicketNow.Domain.Dtos.Order;
 using TicketNow.Domain.Extensions;
+using TicketNow.Domain.Filters;
 using TicketNow.Domain.Interfaces.Services;
+using TicketNow.Infra.CrossCutting.Notifications;
 
 namespace TicketNow.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize]
     public class OrderController : Controller
     {
@@ -26,30 +28,28 @@ namespace TicketNow.Api.Controllers
         }
 
         [HttpPost]
-        [Route("new-order")]
         [SwaggerOperation(Summary = "Create a new order")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> NewOrder([FromBody] AddOrderDto AddOrderDto)
         {
             var newOrderDto = _mapper.Map<OrderDto>(AddOrderDto);
-
+            
             newOrderDto.UserId = this.GetUserIdLogged();
-            var response = await _orderService.InsertNewOrderAsync(newOrderDto);
-
-            if (response.Success.Equals(false)) return BadRequest(response);
+            var response = await _orderService.InsertNewOrderAsync(newOrderDto, AddOrderDto.AddOrderItemDto);
             return Ok(response);
+       
         }
 
         [HttpGet]
-        [Route("get-orders")]
         [SwaggerOperation(Summary = "Get orders by id user")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<OrderDto>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public IActionResult GetOrders()
+        public IActionResult GetOrders([FromQuery] OrderFilter filter)
         {
-            var ltOrder = _orderService.GetUserOrders(this.GetUserIdLogged());
+            var ltOrder = _orderService.GetUserOrders(filter, this.GetUserIdLogged());
             if (ltOrder is null || ltOrder.Count.Equals(0)) return NotFound(new DefaultServiceResponseDto() { Message = "Nenhum pedido foi encontrado", Success = true });
            
             return Ok(ltOrder);
@@ -65,14 +65,13 @@ namespace TicketNow.Api.Controllers
         }
         
         [HttpDelete]
-        [Route("webhook/payments")]
         [SwaggerOperation(Summary = "Cancel order by user")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CancelOrder(int idEvent)
+        public async Task<IActionResult> CancelOrder(int idOrder)
         {
-            return Ok(await _orderService.CancelOrderByUserAsync(this.GetUserIdLogged(), idEvent));
+            return Ok(await _orderService.CancelOrderByUserAsync(this.GetUserIdLogged(), idOrder));
         }
     }
 }

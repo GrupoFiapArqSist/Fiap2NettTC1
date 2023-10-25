@@ -6,8 +6,11 @@ using TicketNow.Domain.Dtos.MockPayment;
 using TicketNow.Domain.Dtos.Order;
 using TicketNow.Domain.Entities;
 using TicketNow.Domain.Enums;
+using TicketNow.Domain.Extensions;
+using TicketNow.Domain.Filters;
 using TicketNow.Domain.Interfaces.Repositories;
 using TicketNow.Domain.Interfaces.Services;
+using TicketNow.Infra.CrossCutting.MockPayment;
 using TicketNow.Infra.CrossCutting.Notifications;
 using TicketNow.Service.Validators.Order;
 
@@ -35,11 +38,12 @@ namespace TicketNow.Service.Services
             _apiKey = StaticMockPaymentApiKey.ApiKey;
         }
 
-        public async Task<DefaultServiceResponseDto> InsertNewOrderAsync(OrderDto newOrderDto)
+        public async Task<DefaultServiceResponseDto> InsertNewOrderAsync(OrderDto newOrderDto, List<AddOrderItemDto> addOrderItemDtos)
         {
             _apiKey = StaticMockPaymentApiKey.ApiKey;
             var eventDb = _eventRepository.Select(newOrderDto.EventId);
             newOrderDto.EventActive = eventDb.Active;
+            newOrderDto.Tickets = addOrderItemDtos.Count;
             newOrderDto.TicketsAvaiable = eventDb.TicketAvailable;
 
             var validationResult = Validate(newOrderDto, Activator.CreateInstance<AddOrderValidator>());
@@ -48,7 +52,17 @@ namespace TicketNow.Service.Services
                 _notificationContext.AddNotifications(validationResult.Errors);
                 return default(DefaultServiceResponseDto);
             }
-            
+
+            foreach (var item in addOrderItemDtos)
+            {
+                validationResult = Validate(item, Activator.CreateInstance<AddOrderItemValidator>());
+                if (!validationResult.IsValid)
+                {
+                    _notificationContext.AddNotifications(validationResult.Errors);
+                    return default(DefaultServiceResponseDto);
+                }
+            }
+
             var orderDb = _mapper.Map<Order>(newOrderDto);
             orderDb.CreatedAt = DateTime.Now;
             orderDb.Status = OrderStatusEnum.Active;
@@ -57,10 +71,11 @@ namespace TicketNow.Service.Services
 
             var newOrderDb = await _orderRepository.InsertWithReturnId(orderDb);
 
-            for (var ticket = 0; ticket < newOrderDto.Tickets; ticket++)
+            foreach (var itemOrderDto in addOrderItemDtos)
             {
-                _orderItemRepository.Insert(new OrderItem(newOrderDb.Id, $"{newOrderDb.User.FirstName} {newOrderDb.User.LastName}", newOrderDb.User.Email)); 
-            }
+                itemOrderDto.OrderId = newOrderDb.Id;
+                _orderItemRepository.Insert(_mapper.Map<OrderItem>(itemOrderDto));
+            };
 
             var paymentResponse = await RequestMockApiPaymentsAsync(newOrderDb);
 
@@ -98,7 +113,7 @@ namespace TicketNow.Service.Services
                 return new DefaultServiceResponseDto()
                 {
                     Message = StaticNotifications.OrderSucessButPaymentUnauthorized.Message,
-                    Success = false
+                    Success = true
                 };
             }
         }
@@ -121,10 +136,19 @@ namespace TicketNow.Service.Services
             return await client.PostAsync<PaymentsDto>(request);
         }
 
-        public List<OrderDto> GetUserOrders(int idUser)
+        public List<OrderDto> GetUserOrders(OrderFilter filter, int idUser)
         {
-            var ltOrderDb = _orderRepository.Select().Where(db => db.UserId.Equals(idUser)).ToList();
-            return _mapper.Map<List<OrderDto>>(ltOrderDb);
+            var ltOrderDb = _orderRepository.Select()
+               .AsQueryable()
+               .OrderByDescending(p => p.CreatedAt)
+               .ApplyFilter(filter)
+               .Where(db => db.UserId.Equals(idUser)).ToList();
+
+            var ltOrderDto = _mapper.Map<List<OrderDto>>(ltOrderDb);
+
+            ltOrderDto.ForEach(x => x.OrderItemDto = _mapper.Map<List<OrderItemDto>>(ltOrderDb.Where(x => x.Id.Equals(x.Id))?.FirstOrDefault().OrderItens));
+
+            return ltOrderDto;
         }
 
         public async Task<DefaultServiceResponseDto> ProcessPaymentsNotificationAsync(PaymentsDto paymentDto)
@@ -154,12 +178,13 @@ namespace TicketNow.Service.Services
             };
         }
 
-        public async Task<DefaultServiceResponseDto> CancelOrderByUserAsync(int userId, int eventId)
+        public async Task<DefaultServiceResponseDto> CancelOrderByUserAsync(int userId, int orderId)
         {
-            var orderDb = _orderRepository.Select().Where(db => db.Event.Id.Equals(eventId) && db.UserId.Equals(userId))?.FirstOrDefault();
+            var orderDb = _orderRepository.Select().Where(db => db.Id.Equals(orderId))?.FirstOrDefault();
 
-            if (orderDb is null) return new DefaultServiceResponseDto() { Message = StaticNotifications.CancelOrderByUserEventNotFound.Message, Success = false };
-            if (orderDb.Status.Equals(0)) return new DefaultServiceResponseDto() { Message = StaticNotifications.CancelOrderByUserEventAlreadyCanceled.Message, Success = false };
+            if (orderDb is null) return new DefaultServiceResponseDto() { Message = StaticNotifications.CancelOrderByUserOrderNotFound.Message, Success = false };
+            if (orderDb.Event.Active.Equals(0)) return new DefaultServiceResponseDto() { Message = StaticNotifications.CancelOrderByUserEventAlreadyCanceled.Message, Success = false };
+            if (orderDb.Status.Equals(OrderStatusEnum.Canceled)) return new DefaultServiceResponseDto() { Message = StaticNotifications.CancelOrderByUserOrderAlreadyCanceled.Message, Success = false };
 
             orderDb.Status = OrderStatusEnum.Canceled;
 

@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace TicketNow.Infra.CrossCutting.Notifications
+namespace TicketNow.Infra.CrossCutting.MockPayment
 {
     public static class StaticMockPaymentApiKey
     {
@@ -21,7 +20,7 @@ namespace TicketNow.Infra.CrossCutting.Notifications
             var username = _configuration.GetSection("MockPayment:Username").Value.ToString();
             var password = _configuration.GetSection("MockPayment:Password").Value.ToString();
             var urlGetapikey = _configuration.GetSection("MockPayment:Urlbase").Value.ToString() + _configuration.GetSection("MockPayment:GetApiKey").Value.ToString();
-          
+
             var getapikeyDto = new GetApiKey()
             {
                 Username = username,
@@ -33,7 +32,7 @@ namespace TicketNow.Infra.CrossCutting.Notifications
                 var httpContent = new StringContent(JsonSerializer.Serialize(getapikeyDto), System.Text.Encoding.UTF8, "application/json");
                 var response = httpClient.PostAsync(urlGetapikey, httpContent).Result;
 
-                if (!response.StatusCode.Equals(HttpStatusCode.OK)) 
+                if (!response.StatusCode.Equals(HttpStatusCode.OK))
                     throw new Exception(response.Content.ToString());
 
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
