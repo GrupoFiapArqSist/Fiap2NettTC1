@@ -1,7 +1,9 @@
 using AutoMapper;
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -15,6 +17,7 @@ using TicketNow.Infra.CrossCutting.Notifications;
 using TicketNow.Infra.Data.Context;
 using TicketNow.Infra.Data.Repositories;
 using TicketNow.Service.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -82,6 +85,7 @@ services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
 services.AddScoped<IEventRepository, EventRepository>();
 
+services.AddScoped<IUserRepository, UserRepository>();
 #endregion
 
 #region [Swagger]            

@@ -9,6 +9,10 @@
         public static Notification RevokeToken = new Notification("RevokeToken", "Token revogado com sucesso!");
         public static Notification InvalidToken = new Notification("InvalidToken", "Token invalido!");
         public static Notification UserCreated = new Notification("UserCreated", "Usuario criado com sucesso!");
+        public static Notification UsernameAlreadyExists = new Notification("UsernameAlreadyExists", "Username já está sendo utilizado!");
+        public static Notification UserEdited = new Notification("UserEdited", "Usuario editado com sucesso!");
+        public static Notification PasswordChanged = new Notification("PasswordChanged", "Senha alterada com sucesso!");
+        public static Notification PhotoUploaded = new Notification("PhotoUploaded", "Upload da foto realizado com sucesso!");
         #endregion
 
         #region [Event]

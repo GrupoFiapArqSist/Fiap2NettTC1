@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using TicketNow.Domain.Dtos.Auth;
+using TicketNow.Domain.Dtos.User;
 
-namespace TicketNow.Service.Validators.Auth
+namespace TicketNow.Service.Validators.User
 {
-    public class RegisterValidator : AbstractValidator<RegisterDto>
+    public class UpdateUserValidator : AbstractValidator<UpdateUserDto>
     {
-        public RegisterValidator()
+        public UpdateUserValidator()
         {
             RuleFor(x => x.Username)
                 .NotEmpty().WithMessage("Informe o usuario");
@@ -17,13 +17,12 @@ namespace TicketNow.Service.Validators.Auth
                 .NotEmpty().WithMessage("Informe o email")
                 .EmailAddress().WithMessage("Informe um email valido");
 
-            RuleFor(x => x.DocumentType)
-                .NotNull().WithMessage("Informe o tipo de documento");
-
             RuleFor(x => x.Document)
                 .NotEmpty().WithMessage("Informe o documento");
 
-            RuleFor(p => p.Password).ValidPassword();
+            RuleFor(x => x.PhoneNumber)
+                .Length(11).WithMessage("Telefone deve ter 11 caracteres")
+                .Matches(@"^[0-9]*$").WithMessage("Telefone deve conter apenas números");
         }
     }
 }

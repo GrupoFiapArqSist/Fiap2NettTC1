@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -72,7 +70,7 @@ namespace TicketNow.Service.Services
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(DefaultServiceResponseDto); }
 
             var existsUser = await _userManager.FindByNameAsync(registerDto.Username);
-            if (existsUser is not null) { _notificationContext.AddNotification(StaticNotifications.UserAlreadyExists); return default(DefaultServiceResponseDto); } 
+            if (existsUser is not null) { _notificationContext.AddNotification(StaticNotifications.UserAlreadyExists); return default(DefaultServiceResponseDto); }
 
             var newUser = _mapper.Map<User>(registerDto);
 
@@ -117,10 +115,10 @@ namespace TicketNow.Service.Services
             if (string.IsNullOrWhiteSpace(accessToken) ||
                 string.IsNullOrEmpty(refreshToken))
             {
-                _notificationContext.AddNotification(StaticNotifications.InvalidToken); 
+                _notificationContext.AddNotification(StaticNotifications.InvalidToken);
                 return default(LoginResponseDto);
             }
-            
+
             var user = await _userManager.FindByNameAsync(userName);
 
             if (user is null ||
@@ -168,7 +166,7 @@ namespace TicketNow.Service.Services
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
-        } 
+        }
 
         private async Task<List<Claim>> GetAuthClaims(User user)
         {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TicketNow.Domain.Dtos.Auth;
 using TicketNow.Domain.Dtos.Event;
+using TicketNow.Domain.Dtos.User;
 using TicketNow.Domain.Dtos.Order;
 using TicketNow.Domain.Entities;
 
@@ -29,6 +30,11 @@ namespace TicketNow.Api.Mapper
                 config.CreateMap<EventDto, Event>().ReverseMap();
                 config.CreateMap<AddEventDto, Event>().ReverseMap();
                 config.CreateMap<UpdateEventDto, Event>().ReverseMap();
+                #endregion
+
+                #region User
+                config.CreateMap<UserResponseDto, User>().ReverseMap();
+                config.CreateMap<UpdateUserDto, User>().ReverseMap();
                 #endregion
             });
             return mappingConfig;
