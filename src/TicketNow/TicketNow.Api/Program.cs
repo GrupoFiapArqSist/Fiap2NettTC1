@@ -77,8 +77,14 @@ services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
 services.AddScoped<IEventService, EventService>();
 services.AddScoped<IUserService, UserService>();
+services.AddScoped<IOrderService, OrderService>();
+
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
 services.AddScoped<IEventRepository, EventRepository>();
+
 services.AddScoped<IUserRepository, UserRepository>();
 #endregion
 

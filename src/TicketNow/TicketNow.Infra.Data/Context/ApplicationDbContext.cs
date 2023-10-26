@@ -23,7 +23,11 @@ namespace TicketNow.Infra.Data.Context
 
             modelBuilder.Entity<Order>(new OrderMap().Configure);            
             modelBuilder.Entity<OrderItem>(new OrderItemMap().Configure);            
-            modelBuilder.Entity<Event>(new EventMap().Configure);            
+            modelBuilder.Entity<Event>(new EventMap().Configure);
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
         }
     }
 }

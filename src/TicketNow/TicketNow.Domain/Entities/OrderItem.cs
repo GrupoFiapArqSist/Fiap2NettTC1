@@ -8,5 +8,18 @@ namespace TicketNow.Domain.Entities
         public string Name { get; set; }
         public string Email { get; set; }        
         public virtual Order Order { get; set; }
+
+        public OrderItem()
+        {
+            
+        }
+
+        public OrderItem(int orderId, string name, string email)
+        {
+            CreatedAt = DateTime.Now;
+            OrderId = orderId;
+            Name = name;
+            Email = email;
+        }
     }
 }
