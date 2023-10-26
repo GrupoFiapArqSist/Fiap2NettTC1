@@ -72,12 +72,16 @@ services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddScoped<NotificationContext>();
 services.AddScoped<IBaseService, BaseService>();
 services.AddScoped<IAuthService, AuthService>();
-services.AddScoped<IOrderRepository, OrderRepository>();
-services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+services.AddScoped<IEventService, EventService>();
+services.AddScoped<IUserService, UserService>();
 services.AddScoped<IOrderService, OrderService>();
 
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
 services.AddScoped<IEventRepository, EventRepository>();
-services.AddScoped<IEventService, EventService>();
+
 #endregion
 
 #region [Swagger]            
