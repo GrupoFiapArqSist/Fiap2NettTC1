@@ -143,5 +143,24 @@ namespace TicketNow.Service.Services
                 Message = StaticNotifications.PhotoUploaded.Message
             };
         }
+
+        public async Task<DefaultServiceResponseDto> Delete(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            var deleteUserResult = await _userManager.DeleteAsync(user);
+
+            if (!deleteUserResult.Succeeded)
+            {
+                var errors = deleteUserResult.Errors.Select(t => new Notification(t.Code, t.Description));
+                _notificationContext.AddNotifications(errors);
+                return default;
+            }
+
+            return new DefaultServiceResponseDto
+            {
+                Success = true,
+                Message = StaticNotifications.UserDeleted.Message
+            };
+        }
     }
 }

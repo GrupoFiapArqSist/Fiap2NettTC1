@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using TicketNow.Domain.Dtos.Default;
 using TicketNow.Domain.Dtos.User;
@@ -78,13 +79,24 @@ namespace TicketNow.Api.Controllers
 
         [HttpPost("UploadPhoto")]
         [Authorize(Roles = StaticUserRoles.CUSTOMER)]
-        [SwaggerOperation(Summary = "Upload Photo")]
+        [SwaggerOperation(Summary = "Upload photo")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UploadPhoto(IFormFile file)
         {
             var response = await _userService.UploadPhoto(file, this.GetUserIdLogged());
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = StaticUserRoles.CUSTOMER)]
+        [SwaggerOperation(Summary = "Delete user")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Delete()
+        {
+            var response = await _userService.Delete(this.GetUserIdLogged());
             return Ok(response);
         }
     }

@@ -13,6 +13,7 @@
         public static Notification UserEdited = new Notification("UserEdited", "Usuario editado com sucesso!");
         public static Notification PasswordChanged = new Notification("PasswordChanged", "Senha alterada com sucesso!");
         public static Notification PhotoUploaded = new Notification("PhotoUploaded", "Upload da foto realizado com sucesso!");
+        public static Notification UserDeleted = new Notification("UserDeleted", "Usuario removido com sucesso!");
         #endregion
 
         #region [Event]
