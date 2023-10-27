@@ -145,9 +145,9 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-        public IActionResult DeleteEvent(int id)
+        public async Task<IActionResult> DeleteEvent(int id)
         {
-            var deleteResult = _eventService.DeleteEvent(id, this.GetUserIdLogged());
+            var deleteResult = await _eventService.DeleteEvent(id, this.GetUserIdLogged());
             return Ok(deleteResult);
         }
     }
