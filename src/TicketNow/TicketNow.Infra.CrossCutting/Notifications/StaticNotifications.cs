@@ -25,6 +25,7 @@
         public static Notification EventAlreadyActiveOrInactive = new Notification("EventAlreadyActiveOrInactive", "Evento já está {0}");
         public static Notification EventState = new Notification("EventState", "Evento {0} com sucesso!");
         public static Notification EventDeleted = new Notification("EventDeleted", "Evento deletado com sucesso!");
+        public static Notification EventDeletedConflict = new Notification("EventDeletedConflict", "Evento está ligado à um pedido, erro ao deletar");
         #endregion
 
         #region [Order]

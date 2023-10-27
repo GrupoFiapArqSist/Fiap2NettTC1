@@ -15,12 +15,14 @@ namespace TicketNow.Service.Services
     public class EventService : BaseService, IEventService
     {
         private readonly IEventRepository _eventRepository;
+        private readonly IOrderRepository _orderRepository;
         private readonly IMapper _mapper;
         private readonly NotificationContext _notificationContext;
 
-        public EventService(IEventRepository eventRepository, IMapper mapper, NotificationContext notificationContext)
+        public EventService(IEventRepository eventRepository, IOrderRepository orderRepository, IMapper mapper, NotificationContext notificationContext)
         {
             _eventRepository = eventRepository;
+            _orderRepository = orderRepository;
             _mapper = mapper;
             _notificationContext = notificationContext;
         }
@@ -149,7 +151,12 @@ namespace TicketNow.Service.Services
         {
             var eventResult = await _eventRepository.SelectByIds(eventId, promoterId);
 
-            //add validação para order vinculada ao eventId
+            var orderResult = _orderRepository
+                .Select()
+                .Where(r => r.EventId == eventId && r.UserId == promoterId)
+                .FirstOrDefault();
+
+            if (orderResult is not null) { _notificationContext.AddNotification(StaticNotifications.EventDeletedConflict); return default(DefaultServiceResponseDto); };
 
             if (eventResult is null) { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };
 
