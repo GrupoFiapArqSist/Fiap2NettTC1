@@ -30,7 +30,7 @@ Este projeto usa o SQL Server, você pode usar uma instância instalada em sua �
 docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=1q2w3e4r@#$' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-### TicketNow Api
+## TicketNow Api
 
 Essa API foi desenvolvida em .NET 7, com autenticação em JWT, e banco de dados SQL Server
 
@@ -38,15 +38,15 @@ Credenciais:
 User: admin
 Password: 1q2w3e4r@#$
 
-Endpoints
+##Endpoints
 
-# Order:
+### Order:
 ![image](https://github.com/Kulessa/Fiap2NettTC1/assets/60990141/be3a03e7-bf08-4898-9b20-b28f2a874de6)
 
 
 
 
-### MockPayment
+## MockPayment
 
 Essa API foi desenvolvida em .NET 7, utilizando Minimal API, com o banco de dados SQL Server,
 está API é utilizada apenas internamente para mockarmos os pagamentos.
