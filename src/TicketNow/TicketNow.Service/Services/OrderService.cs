@@ -136,7 +136,7 @@ namespace TicketNow.Service.Services
             return await client.PostAsync<PaymentsDto>(request);
         }
 
-        public List<OrderDto> GetUserOrders(OrderFilter filter, int idUser)
+        public List<OrderDetailsDto> GetUserOrders(OrderFilter filter, int idUser)
         {
             var ltOrderDb = _orderRepository.Select()
                .AsQueryable()
@@ -144,11 +144,23 @@ namespace TicketNow.Service.Services
                .ApplyFilter(filter)
                .Where(db => db.UserId.Equals(idUser)).ToList();
 
-            var ltOrderDto = _mapper.Map<List<OrderDto>>(ltOrderDb);
+            List<OrderDetailsDto> ltOrderDetails = new();
+            ltOrderDb.ForEach(db => ltOrderDetails.Add(new OrderDetailsDto(db.Id, db.EventId, db.Status, db.PaymentStatus,
+                db.PaymentMethod, db.Tickets, db.Price, _mapper.Map<List<OrderItemDto>>(db.OrderItens))));
 
-            ltOrderDto.ForEach(x => x.OrderItemDto = _mapper.Map<List<OrderItemDto>>(ltOrderDb.Where(x => x.Id.Equals(x.Id))?.FirstOrDefault().OrderItens));
+            return ltOrderDetails;
+        }
 
-            return ltOrderDto;
+        public OrderDetailsDto GetOrderDetails(int idOrder, int idUser)
+        {
+            var orderDb = _orderRepository.Select()
+                .AsQueryable()
+                .Where(db => db.Id.Equals(idOrder) && db.UserId.Equals(idUser))?.FirstOrDefault();
+
+            OrderDetailsDto orderDetailsDto = new(orderDb.Id, orderDb.EventId, orderDb.Status, orderDb.PaymentStatus, 
+                orderDb.PaymentMethod, orderDb.Tickets, orderDb.Price, _mapper.Map<List<OrderItemDto>>(orderDb.OrderItens));
+           
+            return orderDetailsDto;
         }
 
         public async Task<DefaultServiceResponseDto> ProcessPaymentsNotificationAsync(PaymentsDto paymentDto)

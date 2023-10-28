@@ -44,15 +44,29 @@ namespace TicketNow.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(Summary = "Get orders by id user")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<OrderDto>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<OrderDetailsDto>))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public IActionResult GetOrders([FromQuery] OrderFilter filter)
         {
             var ltOrder = _orderService.GetUserOrders(filter, this.GetUserIdLogged());
-            if (ltOrder is null || ltOrder.Count.Equals(0)) return NotFound(new DefaultServiceResponseDto() { Message = "Nenhum pedido foi encontrado", Success = true });
+            if (ltOrder is null || ltOrder.Count.Equals(0)) return NotFound(new DefaultServiceResponseDto() { Message = StaticNotifications.OrderNotFound.Message, Success = true });
            
             return Ok(ltOrder);
+        }
+
+        [HttpGet("get-order-detail")]
+        [SwaggerOperation(Summary = "Get order details by id")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(OrderDetailsDto))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public IActionResult GetOrderDetail(int idOrder)
+        {
+            var orderDetail = _orderService.GetOrderDetails(idOrder, this.GetUserIdLogged());
+            if (orderDetail is null) return NotFound(new DefaultServiceResponseDto() { Message = StaticNotifications.OrderNotFound.Message, Success = false });
+
+            return Ok(orderDetail);
         }
 
         [HttpPost]

@@ -9,7 +9,7 @@ namespace MockPayment.Api.Background
     public class Engine : BackgroundService, IHostedService
     {        
         private readonly IDbContextFactory<ApplicationDbContext> _context;
-        private readonly TimeSpan _period = TimeSpan.FromMinutes(2);
+        private readonly TimeSpan _period = TimeSpan.FromMinutes(1);
 
         public Engine(IDbContextFactory<ApplicationDbContext> context)
         {
@@ -67,7 +67,7 @@ namespace MockPayment.Api.Background
                 {
                     try
                     {
-                        var httpContent = new StringContent(JsonSerializer.Serialize(payments),
+                        var httpContent = new StringContent(JsonSerializer.Serialize(payment),
                             System.Text.Encoding.UTF8, "application/json");
 
                         var response = await httpClient.PostAsync(payment.Application?.WebhookUrl, httpContent);
