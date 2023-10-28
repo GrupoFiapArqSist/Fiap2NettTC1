@@ -40,6 +40,10 @@ Password: 1q2w3e4r@#$
 
 Endpoints
 
+
+
+
+
 ### MockPayment
 
 Essa API foi desenvolvida em .NET 7, utilizando Minimal API, com o banco de dados SQL Server,
@@ -56,3 +60,6 @@ e 50% de retornar sucesso.
 Todos os retornos dessa API, são feitos via webhook.
 
 Endpoints (Usados apenas internamente)
+
+![image](https://github.com/Kulessa/Fiap2NettTC1/assets/60990141/cdb5edf4-7c1d-4d31-9f05-28b97b9888b0)
+
