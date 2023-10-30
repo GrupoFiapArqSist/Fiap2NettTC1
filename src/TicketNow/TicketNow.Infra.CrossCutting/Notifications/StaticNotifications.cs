@@ -37,6 +37,7 @@
         public static Notification CancelOrderByUserEventAlreadyCanceled = new("CancelOrderByUserEventAlreadyCanceled", "Evento já cancelado.");
         public static Notification CancelOrderByUserOrderAlreadyCanceled = new("CancelOrderByUserOrderAlreadyCanceled", "Pedido já cancelado.");
         public static Notification OrderCanceledSucess = new("OrderCanceledSucess", "Pedido cancelado com sucesso.");
+        public static Notification OrderNotFound = new("OrderNotFound", "Nenhum pedido foi encontrado");
         #endregion
     }
 }
