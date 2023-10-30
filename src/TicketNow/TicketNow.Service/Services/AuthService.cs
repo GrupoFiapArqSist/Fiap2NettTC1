@@ -64,7 +64,7 @@ namespace TicketNow.Service.Services
             };
         }
 
-        public async Task<DefaultServiceResponseDto> RegisterAsync(RegisterDto registerDto)
+        public async Task<DefaultServiceResponseDto> RegisterAsync(RegisterDto registerDto, string role = StaticUserRoles.CUSTOMER)
         {
             var validationResult = Validate(registerDto, Activator.CreateInstance<RegisterValidator>());
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(DefaultServiceResponseDto); }
@@ -86,7 +86,7 @@ namespace TicketNow.Service.Services
                 return default(DefaultServiceResponseDto);
             }
 
-            await _userManager.AddToRoleAsync(newUser, StaticUserRoles.CUSTOMER);
+            await _userManager.AddToRoleAsync(newUser, role);
 
             return new DefaultServiceResponseDto
             {
