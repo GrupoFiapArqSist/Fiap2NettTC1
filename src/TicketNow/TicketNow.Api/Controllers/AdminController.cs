@@ -13,12 +13,13 @@ namespace TicketNow.Api.Controllers
     [ApiController]
     public class AdminController : Controller
     {
-        private readonly IUserService userService;
+        private readonly IUserService _userService;
 
         public AdminController(IUserService userService)
         {
-            this.userService = userService;
+            _userService = userService;
         }
+
         [HttpPut]
         [Route("activate")]
         [Authorize(Roles = StaticUserRoles.ADMIN)]
@@ -28,9 +29,21 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Activate([FromBody] ActivateUserDto activateUserDto)
         {
-            var response = await userService.ActivateAsync(activateUserDto);
+            var response = await _userService.ActivateAsync(activateUserDto);
             return Ok(response);
         }
 
+        [HttpPut]
+        [Route("approve/{id}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [SwaggerOperation(Summary = "Approve promoter user")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Approve([FromQuery] int id)
+        {
+            var response = await _userService.ApproveAsync(id);
+            return Ok(response);
+        }
     }
 }

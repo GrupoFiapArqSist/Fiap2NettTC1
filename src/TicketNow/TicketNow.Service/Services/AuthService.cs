@@ -41,7 +41,7 @@ namespace TicketNow.Service.Services
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(LoginResponseDto); }
 
             var user = await _userManager.FindByNameAsync(loginDto.Username);
-            if (user is null || !user.Active) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
+            if (user is null || !user.Active || !user.Approved) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
 
             var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginDto.Password);
             if (!isPasswordCorrect) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
@@ -76,7 +76,8 @@ namespace TicketNow.Service.Services
             var newUser = _mapper.Map<User>(registerDto);
 
             newUser.CreatedAt = DateTime.Now;
-            newUser.Active = (role != StaticUserRoles.PROMOTER);
+            newUser.Active = true;
+            newUser.Approved = (role != StaticUserRoles.PROMOTER);
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 
