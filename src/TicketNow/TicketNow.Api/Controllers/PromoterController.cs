@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using TicketNow.Domain.Dtos.Auth;
@@ -21,7 +20,6 @@ namespace TicketNow.Api.Controllers
         }
         [HttpPost]
         [Route("register")]
-        [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Create a new user")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
