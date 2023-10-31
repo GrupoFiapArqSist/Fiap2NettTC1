@@ -112,29 +112,29 @@ namespace TicketNow.Api.Controllers
             return Ok(events);
         }
 
-        [HttpPut("DisableById")]
+        [HttpPut("DisableById/{id}")]
         [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Disable event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> DisableEvent([FromQuery] int eventId)
+        public async Task<IActionResult> DisableEvent(int id)
         {
-            var disableResult = await _eventService.SetState(eventId, false, this.GetUserIdLogged());
+            var disableResult = await _eventService.SetState(id, false, this.GetUserIdLogged());
             return Ok(disableResult);
         }
 
-        [HttpPut("EnableById")]
+        [HttpPut("EnableById/{id}")]
         [Authorize(Roles = StaticUserRoles.PROMOTER)]
         [SwaggerOperation(Summary = "Enable event")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> EnableEvent([FromQuery] int eventId)
+        public async Task<IActionResult> EnableEvent(int id)
         {
-            var enableResult = await _eventService.SetState(eventId, true, this.GetUserIdLogged());
+            var enableResult = await _eventService.SetState(id, true, this.GetUserIdLogged());
             return Ok(enableResult);
         }
 
@@ -149,6 +149,19 @@ namespace TicketNow.Api.Controllers
         {
             var deleteResult = await _eventService.DeleteEvent(id, this.GetUserIdLogged());
             return Ok(deleteResult);
+        }
+
+        [HttpPut("ApproveById/{id}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [SwaggerOperation(Summary = "Approve event")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> ApproveById(int eventId)
+        {
+            var approveResult = await _eventService.Approve(eventId);
+            return Ok(approveResult);
         }
     }
 }

@@ -28,6 +28,7 @@
         public static Notification EventState = new Notification("EventState", "Evento {0} com sucesso!");
         public static Notification EventDeleted = new Notification("EventDeleted", "Evento deletado com sucesso!");
         public static Notification EventDeletedConflict = new Notification("EventDeletedConflict", "Evento está ligado à um pedido, erro ao deletar");
+        public static Notification EventApproved = new Notification("EventApproved", "Evento aprovado com sucesso");
         #endregion
 
         #region [Order]
