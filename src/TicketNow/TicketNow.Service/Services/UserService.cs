@@ -162,5 +162,28 @@ namespace TicketNow.Service.Services
                 Message = StaticNotifications.UserDeleted.Message
             };
         }
+
+        public async Task<DefaultServiceResponseDto> ActivateAsync(ActivateUserDto activateUserDto)
+        {
+            var user = await _userManager.FindByIdAsync(activateUserDto.Id.ToString());
+            if (user == null)
+            {
+                _notificationContext.AddNotification(StaticNotifications.UserNotFound);
+                return default;
+            }
+            user.Active = activateUserDto.Active;
+            var activateUserResult = await _userManager.UpdateAsync(user);
+            if (!activateUserResult.Succeeded)
+            {
+                var errors = activateUserResult.Errors.Select(t => new Notification(t.Code, t.Description));
+                _notificationContext.AddNotifications(errors);
+                return default;
+            }
+            return new DefaultServiceResponseDto
+            {
+                Success = true,
+                Message = StaticNotifications.UserActivated.Message
+            };
+        }
     }
 }
