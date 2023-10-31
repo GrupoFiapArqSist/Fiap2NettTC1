@@ -45,5 +45,15 @@ namespace TicketNow.Api.Controllers
             var response = await _userService.ApproveAsync(id);
             return Ok(response);
         }
+        [HttpDelete("{id}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [SwaggerOperation(Summary = "Delete user")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var response = await _userService.Delete(id);
+            return Ok(response);
+        }
     }
 }
