@@ -13,5 +13,6 @@ namespace TicketNow.Domain.Interfaces.Services
         Task<DefaultServiceResponseDto> UpdatePassword(UpdateUserPasswordDto updateUserPasswordDto, int id);
         Task<DefaultServiceResponseDto> UploadPhoto(IFormFile file, int id);
         Task<DefaultServiceResponseDto> Delete(int id);
+        Task<DefaultServiceResponseDto> ActivateAsync(ActivateUserDto activateUserDto);
     }
 }
