@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -75,7 +76,7 @@ namespace TicketNow.Service.Services
             var newUser = _mapper.Map<User>(registerDto);
 
             newUser.CreatedAt = DateTime.Now;
-            newUser.Active = true;
+            newUser.Active = ((role == StaticUserRoles.CUSTOMER) || (role == StaticUserRoles.ADMIN && registerDto.Username == "admin"));
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 
