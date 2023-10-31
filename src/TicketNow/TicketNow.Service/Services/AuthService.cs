@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -40,7 +41,7 @@ namespace TicketNow.Service.Services
             if (!validationResult.IsValid) { _notificationContext.AddNotifications(validationResult.Errors); return default(LoginResponseDto); }
 
             var user = await _userManager.FindByNameAsync(loginDto.Username);
-            if (user is null || !user.Active) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
+            if (user is null || !user.Active || !user.Approved) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
 
             var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginDto.Password);
             if (!isPasswordCorrect) { _notificationContext.AddNotification(StaticNotifications.InvalidCredentials); return default(LoginResponseDto); }
@@ -76,6 +77,7 @@ namespace TicketNow.Service.Services
 
             newUser.CreatedAt = DateTime.Now;
             newUser.Active = true;
+            newUser.Approved = (role != StaticUserRoles.PROMOTER);
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 

@@ -16,6 +16,7 @@ namespace TicketNow.Domain.Entities
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
         public string PhotoUrl { get; set; }
+        public bool Approved { get; set; }
         public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }

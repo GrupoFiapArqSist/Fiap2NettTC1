@@ -57,6 +57,9 @@ namespace TicketNow.Service.Services
             if (filter.Active is not null)
                 users = users.Where(u => u.Active == filter.Active);
 
+            if (filter.Approved is not null)
+                users = users.Where(u => u.Approved == filter.Approved);
+
             var response = _mapper.Map<List<UserResponseDto>>(users);
 
             return response;
@@ -183,6 +186,30 @@ namespace TicketNow.Service.Services
             {
                 Success = true,
                 Message = StaticNotifications.UserActivated.Message
+            };
+        }
+
+        public async Task<DefaultServiceResponseDto> ApproveAsync(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                _notificationContext.AddNotification(StaticNotifications.UserNotFound);
+                return default;
+            }
+
+            user.Approved = true;
+            var activateUserResult = await _userManager.UpdateAsync(user);
+            if (!activateUserResult.Succeeded)
+            {
+                var errors = activateUserResult.Errors.Select(t => new Notification(t.Code, t.Description));
+                _notificationContext.AddNotifications(errors);
+                return default;
+            }
+            return new DefaultServiceResponseDto
+            {
+                Success = true,
+                Message = StaticNotifications.UserApproved.Message
             };
         }
     }
