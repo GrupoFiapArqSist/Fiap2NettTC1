@@ -76,7 +76,7 @@ namespace TicketNow.Service.Services
             var newUser = _mapper.Map<User>(registerDto);
 
             newUser.CreatedAt = DateTime.Now;
-            newUser.Active = ((role == StaticUserRoles.CUSTOMER) || (role == StaticUserRoles.ADMIN && registerDto.Username == "admin"));
+            newUser.Active = (role != StaticUserRoles.PROMOTER);
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 
