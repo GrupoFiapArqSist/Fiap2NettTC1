@@ -158,9 +158,9 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<Notification>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> ApproveById(int eventId)
+        public async Task<IActionResult> ApproveById(int id)
         {
-            var approveResult = await _eventService.Approve(eventId);
+            var approveResult = await _eventService.Approve(id);
             return Ok(approveResult);
         }
     }
