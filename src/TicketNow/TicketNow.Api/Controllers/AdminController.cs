@@ -40,7 +40,7 @@ namespace TicketNow.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(DefaultServiceResponseDto))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(IReadOnlyCollection<dynamic>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Approve([FromQuery] int id)
+        public async Task<IActionResult> Approve(int id)
         {
             var response = await _userService.ApproveAsync(id);
             return Ok(response);

@@ -13,5 +13,6 @@ namespace TicketNow.Domain.Interfaces.Services
         EventDto GetEvent(int eventId);
         Task<DefaultServiceResponseDto> SetState(int eventId, bool active, int promoterId);
         Task<DefaultServiceResponseDto> UpdateEventAsync(UpdateEventDto updateEventDto, int promoterId);
+        Task<DefaultServiceResponseDto> Approve(int eventId);
     }
 }

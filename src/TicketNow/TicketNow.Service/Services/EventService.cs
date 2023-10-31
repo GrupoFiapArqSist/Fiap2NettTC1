@@ -169,5 +169,23 @@ namespace TicketNow.Service.Services
                 Message = string.Format(StaticNotifications.EventDeleted.Message)
             };
         }
+
+        public async Task<DefaultServiceResponseDto> Approve(int eventId)
+        {
+            var eventResult = _eventRepository.Select(eventId);
+
+            if (eventResult is null) { _notificationContext.AddNotification(StaticNotifications.EventNotFound); return default(DefaultServiceResponseDto); };           
+
+            eventResult.Approved = true;
+
+            _eventRepository.Update(eventResult);
+            await _eventRepository.SaveChangesAsync();
+
+            return new DefaultServiceResponseDto
+            {
+                Success = true,
+                Message = StaticNotifications.EventApproved.Message
+            };
+        }
     }
 }
