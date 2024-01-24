@@ -26,3 +26,14 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       working-directory: src/TicketNow
+    - name: Docker Login
+      uses: docker/login-action@v3.0.0
+      with:
+        username: 'raffaraujo'
+        password: ${{ DOCKERHUB_PASSWORD }}
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v5.1.0
+      with:
+        context: src/TicketNow
+        tags: latest
+        push: true
